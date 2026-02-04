@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stm32f0xx_hal.h>
 #include <stm32f0xx_hal_gpio.h>
+#include "assert.h"
 
 void My_HAL_RCC_GPIOC_CLK_Enable()
 {
@@ -11,11 +12,34 @@ void My_HAL_RCC_GPIOC_CLK_Enable()
 
 }
 
-/*
-void My_HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
+
+void My_HAL_GPIO_Init(GPIO_TypeDef  *GPIOx) /*, GPIO_InitTypeDef *GPIO_Init */
 {
+    // Modify PC8, PC9
+
+    // MODER -> General-purpose output mode [01]
+
+    GPIOx->MODER |= 0b00000000000001010000000000000000;
+
+
+    assert(GPIOx->MODER == 0b00000000000001010000000000000000);
+
+    // OTYPER -> Push-pull output type [0]
+
+    GPIOx->OTYPER |=0b0000000000000000;
+    assert(GPIOx->OTYPER ==0b0000000000000000);
+
+    // OSPEEDR -> low speed [x0]
+    GPIOx->OSPEEDR |= 0b00000000000000000000000000000000;
+    assert(GPIOx->OSPEEDR == 0b00000000000000000000000000000000);
+
+    // PUPDR -> no pull-up/down [00]
+
+    GPIOx->PUPDR |= 0b00000000000000000000000000000000;
+    assert(GPIOx->PUPDR == 0b00000000000000000000000000000000);
+    
 }
-*/
+
 
 /*
 void My_HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)

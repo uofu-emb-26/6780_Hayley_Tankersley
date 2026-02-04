@@ -14,12 +14,11 @@ int main(void)
   with hardware register access. */
 
   My_HAL_RCC_GPIOC_CLK_Enable();
+  //__HAL_RCC_GPIOC_CLK_ENABLE();
+ //GPIO_InitTypeDef initStr = { GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
 
-  //__HAL_RCC_GPIOC_CLK_ENABLE(); // Enable the GPIOC clock in the RCC
-
-  GPIO_InitTypeDef initStr = { GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
-
-  HAL_GPIO_Init(GPIOC, &initStr); // Initialize pins PC8, PC9
+  My_HAL_GPIO_Init(GPIOC);
+  //HAL_GPIO_Init(GPIOC, &initStr); // Initialize pins PC8, PC9
   HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_SET); // Start PC8 high
 
   while (1)
