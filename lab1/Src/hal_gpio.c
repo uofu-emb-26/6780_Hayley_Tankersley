@@ -1,6 +1,16 @@
 #include <stdint.h>
 #include <stm32f0xx_hal.h>
 #include <stm32f0xx_hal_gpio.h>
+
+void My_HAL_RCC_GPIOC_CLK_Enable()
+{
+    //RCC->AHBENR |= RCC_AHBENR_GPIOBEN // Enable peripheral clock to TIMER2 GPIOB
+
+    RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+
+
+}
+
 /*
 void My_HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
 {

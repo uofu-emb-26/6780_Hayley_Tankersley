@@ -1,5 +1,6 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
+#include "hal_gpio.h"
 
 void SystemClock_Config(void);
 
@@ -12,7 +13,9 @@ int main(void)
   the GPIOC peripheral. You’ll be redoing this code
   with hardware register access. */
 
-  __HAL_RCC_GPIOC_CLK_ENABLE(); // Enable the GPIOC clock in the RCC
+  My_HAL_RCC_GPIOC_CLK_Enable();
+
+  //__HAL_RCC_GPIOC_CLK_ENABLE(); // Enable the GPIOC clock in the RCC
 
   GPIO_InitTypeDef initStr = { GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
 
@@ -23,6 +26,7 @@ int main(void)
   {
     HAL_Delay(200); // Delay 200ms
     // Toggle the output state of both PC8, PC9
+    
     HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8 | GPIO_PIN_9);
   }
   return -1;
