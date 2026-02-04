@@ -21,18 +21,24 @@ int main(void)
   My_HAL_GPIO_Init(GPIOC);
   init_User_Button(GPIOA);
 
-  HAL_Delay(500);
+ // HAL_Delay(500);
   My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,GPIO_PIN_SET);
+  //My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_RESET);
 
   while (1)
   {
-    HAL_Delay(200); // Delay 200ms
+    //HAL_Delay(200); // Delay 200ms
     // Toggle the output state of both PC8, PC9
-    if(My_HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0))
-    {
+    //if(My_HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0))
+    //{
 
+    if(My_HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0)==GPIO_PIN_SET)
+    {
       My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6 | GPIO_PIN_7);
     }
+
+      
+    //}
     //HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8 | GPIO_PIN_9);
   }
   return -1;

@@ -47,7 +47,7 @@ void init_User_Button(GPIO_TypeDef  *GPIOx)
 {
     // BUTTON PA0
 
-    GPIOx->MODER &= ~((1<<0) | (1<<1) );
+    GPIOx->MODER &= ~((1<<0) | (1<<1) ); // 
     //assert(GPIOx->MODER == 0b0000000000000000000000000000000);
 
     GPIOx->OSPEEDR &= ~((1<<0) | (1<<1) );
@@ -79,10 +79,22 @@ void My_HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
 
 GPIO_PinState My_HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
-    if(GPIOx->IDR != GPIO_Pin)
+
+    // IDR bit array: GPIOx->IDR 
+    
+    //Isolate relevant bit
+
+    uint16_t isolated_state = (GPIOx->IDR)&GPIO_Pin;
+
+    if(isolated_state == GPIO_Pin)
     {
-        return 1;
+        return GPIO_PIN_SET;
     }
+    else
+    {
+        return GPIO_PIN_RESET;
+    }
+
     return -1;
 }
 
