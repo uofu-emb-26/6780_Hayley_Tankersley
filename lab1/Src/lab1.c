@@ -25,6 +25,7 @@ int main(void)
   My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,GPIO_PIN_SET);
   //My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_RESET);
 
+  uint32_t debouncer = 0;
   while (1)
   {
     //HAL_Delay(200); // Delay 200ms
@@ -32,12 +33,31 @@ int main(void)
     //if(My_HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0))
     //{
 
-    if(My_HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0)==GPIO_PIN_SET)
+    debouncer = (debouncer << 1); // Shift debouncer each iteration
+
+    if(My_HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0)==GPIO_PIN_SET) // if button pressed
     {
+      debouncer |=0x01;
+    }
+
+
+    if(debouncer == 0xFFFFFFFF)
+    {
+      // Steady high
+      
+    }
+    if(debouncer == 0x00000000)
+    {
+      // Steady low
+    }
+    if(debouncer == 0x07FFFFFFF)
+    {
+      // Triggers once when transitioning to steady high
       My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6 | GPIO_PIN_7);
     }
 
       
+    HAL_Delay(5);
     //}
     //HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8 | GPIO_PIN_9);
   }
