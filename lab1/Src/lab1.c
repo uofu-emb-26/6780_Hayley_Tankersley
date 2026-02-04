@@ -19,13 +19,20 @@ int main(void)
   // RED LED = LD5,  PC6
 
   My_HAL_GPIO_Init(GPIOC);
+  init_User_Button(GPIOA);
+
+  HAL_Delay(500);
   My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,GPIO_PIN_SET);
 
   while (1)
   {
     HAL_Delay(200); // Delay 200ms
     // Toggle the output state of both PC8, PC9
-    My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6 | GPIO_PIN_7);
+    if(My_HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0))
+    {
+
+      My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6 | GPIO_PIN_7);
+    }
     //HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8 | GPIO_PIN_9);
   }
   return -1;
