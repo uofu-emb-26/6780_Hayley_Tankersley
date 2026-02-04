@@ -65,8 +65,14 @@ GPIO_PinState My_HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 }
 */
 
-/*
+
 void My_HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
+    // 0b 0000 0001 0000 0000 GPIO_PIN_8
+    // 0b 0000 0010 0000 0000 GPIO_PIN_9
+
+    GPIOx->ODR ^= GPIO_Pin;
+
+
 }
-*/
+
