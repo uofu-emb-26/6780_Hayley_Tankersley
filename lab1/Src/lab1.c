@@ -15,14 +15,17 @@ int main(void)
 
   My_HAL_RCC_GPIOC_CLK_Enable();
 
+  // BLUE LED = LD6, PC7 
+  // RED LED = LD5,  PC6
+
   My_HAL_GPIO_Init(GPIOC);
-  My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_SET);
+  My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,GPIO_PIN_SET);
 
   while (1)
   {
     HAL_Delay(200); // Delay 200ms
     // Toggle the output state of both PC8, PC9
-    My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8 | GPIO_PIN_9);
+    My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6 | GPIO_PIN_7);
     //HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8 | GPIO_PIN_9);
   }
   return -1;

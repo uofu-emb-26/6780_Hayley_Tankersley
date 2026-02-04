@@ -19,10 +19,10 @@ void My_HAL_GPIO_Init(GPIO_TypeDef  *GPIOx) /*, GPIO_InitTypeDef *GPIO_Init */
 
     // MODER -> General-purpose output mode [01]
 
-    GPIOx->MODER |= 0b00000000000001010000000000000000;
+    GPIOx->MODER |= 0b00000000000000000101000000000000;
 
 
-    assert(GPIOx->MODER == 0b00000000000001010000000000000000);
+    assert(GPIOx->MODER == 0b00000000000000000101000000000000);
 
     // OTYPER -> Push-pull output type [0]
 
