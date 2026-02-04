@@ -3,20 +3,27 @@
 
 void SystemClock_Config(void);
 
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
 int main(void)
 {
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
-  /* Configure the system clock */
-  SystemClock_Config();
+  HAL_Init(); // Resets of all peripherals, init the Flash and Systick
+  SystemClock_Config(); //Configure the system clock
+
+  /* This example uses HAL library calls to control
+  the GPIOC peripheral. You’ll be redoing this code
+  with hardware register access. */
+
+  __HAL_RCC_GPIOC_CLK_ENABLE(); // Enable the GPIOC clock in the RCC
+
+  GPIO_InitTypeDef initStr = { GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+
+  HAL_GPIO_Init(GPIOC, &initStr); // Initialize pins PC8, PC9
+  HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_SET); // Start PC8 high
 
   while (1)
   {
- 
+    HAL_Delay(200); // Delay 200ms
+    // Toggle the output state of both PC8, PC9
+    HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8 | GPIO_PIN_9);
   }
   return -1;
 }
@@ -83,3 +90,5 @@ void assert_failed(uint8_t *file, uint32_t line)
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 }
 #endif /* USE_FULL_ASSERT */
+
+
