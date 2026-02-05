@@ -2,7 +2,7 @@
 #include <stm32f0xx_hal.h>
 #include <stm32f0xx_hal_gpio.h>
 
-void My_HAL_GPIO_Init(GPIO_TypeDef  *GPIOx); /*, GPIO_InitTypeDef *GPIO_Init */
+void My_HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init); /* */
 void My_HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin);
 GPIO_PinState My_HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 void My_HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
@@ -10,3 +10,6 @@ void My_HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 void init_User_Button(GPIO_TypeDef  *GPIOx);
 
 void My_HAL_RCC_GPIOC_CLK_Enable(); // Enable the GPIOC clock in the RCC
+
+
+int32_t get_2bit_pin_mask(uint32_t GPIO_Pin);

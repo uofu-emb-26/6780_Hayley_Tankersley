@@ -18,7 +18,9 @@ int main(void)
   // BLUE LED = LD6, PC7 
   // RED LED = LD5,  PC6
 
-  My_HAL_GPIO_Init(GPIOC);
+  GPIO_InitTypeDef initStr = { GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+
+  My_HAL_GPIO_Init(GPIOC, &initStr);
   init_User_Button(GPIOA);
 
  // HAL_Delay(500);
