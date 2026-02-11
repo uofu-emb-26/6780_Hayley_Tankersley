@@ -25,12 +25,12 @@ int main(void)
 
   My_HAL_RCC_GPIOC_CLK_Enable();
 
-  GPIO_InitTypeDef initStr = { GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+  GPIO_InitTypeDef initStr = { GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
 
   My_HAL_GPIO_Init(GPIOC, &initStr);
   //init_User_Button(GPIOA);
 
-  My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_SET);
+  My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_SET);
   
   My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_SET);
   
@@ -108,11 +108,20 @@ void Connect_PA0_To_Interrupt(void)
   EXTI->RTSR |= 0x1;
 
   // Connect PA0 to SYSCFG
-  SYSCFG->EXTICR[0] &= ~(0xF);
+  SYSCFG->EXTICR[0] &= ~(0b0001);
 
   // Set EXTI0 Priority in NVIC
   NVIC_EnableIRQ(EXTI0_1_IRQn);
   NVIC_SetPriority(EXTI0_1_IRQn,1);
+}
+
+
+void EXTI0_1_IRQHandler(void)
+{
+  My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8);
+  My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_9);
+
+  EXTI->PR |= 0x1;
 }
 
 #ifdef USE_FULL_ASSERT
