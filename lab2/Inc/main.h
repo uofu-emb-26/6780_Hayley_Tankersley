@@ -7,6 +7,8 @@ extern "C" {
 
 void Error_Handler(void);
 
+void Connect_PA0_To_Interrupt(void);
+
 #ifdef __cplusplus
 }
 #endif

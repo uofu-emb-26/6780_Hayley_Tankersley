@@ -5,6 +5,8 @@
 
 void SystemClock_Config(void);
 
+void EXTI0_1_IRQHandler(void);
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -32,6 +34,11 @@ int main(void)
   
   My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_SET);
   
+  // Init user button
+
+  init_User_Button(GPIOA);
+
+  Connect_PA0_To_Interrupt();
 
   while (1)
   {
@@ -88,6 +95,24 @@ void Error_Handler(void)
   while (1)
   {
   }
+}
+
+void Connect_PA0_To_Interrupt(void)
+{
+  //Enable EXTI0
+
+  EXTI->IMR |= 0x1;
+
+  //Configure Rising Edge Interrupt
+
+  EXTI->RTSR |= 0x1;
+
+  // Connect PA0 to SYSCFG
+  SYSCFG->EXTICR[0] &= ~(0xF);
+
+  // Set EXTI0 Priority in NVIC
+  NVIC_EnableIRQ(EXTI0_1_IRQn);
+  NVIC_SetPriority(EXTI0_1_IRQn,1);
 }
 
 #ifdef USE_FULL_ASSERT
