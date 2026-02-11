@@ -30,7 +30,7 @@ int main(void)
   My_HAL_GPIO_Init(GPIOC, &initStr);
   //init_User_Button(GPIOA);
 
-  My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_SET);
+  My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_SET);
   
   My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_SET);
   
