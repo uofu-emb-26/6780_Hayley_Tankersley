@@ -2,12 +2,16 @@
 #include "stm32f0xx_hal.h"
 #include "hal_gpio2.h"
 
+
 void SystemClock_Config(void);
 
 /**
   * @brief  The application entry point.
   * @retval int
   */
+
+  
+
 int main(void)
 {
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */

@@ -1,6 +1,7 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
 #include "stm32f0xx_it.h"
+#include "hal_gpio2.h"
 
 /******************************************************************************/
 /*           Cortex-M0 Processor Interruption and Exception Handlers          */
@@ -8,6 +9,8 @@
 /**
   * @brief This function handles Non maskable interrupt.
   */
+
+volatile int count = 0;
 void NMI_Handler(void)
 {
    while (1)
@@ -42,9 +45,20 @@ void PendSV_Handler(void)
 /**
   * @brief This function handles System tick timer.
   */
+
+  
 void SysTick_Handler(void)
 {
+  count += 1;
   HAL_IncTick();
+
+  if((count % 200) == 0)
+  {
+    //My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_SET);
+    My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_7);
+    //count = 0;
+  }
+  //HAL_Delay(200);
 }
 
 /******************************************************************************/
