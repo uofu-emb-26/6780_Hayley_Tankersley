@@ -1,5 +1,6 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
+#include "hal_gpio2.h"
 
 void SystemClock_Config(void);
 
@@ -14,9 +15,25 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
+  // Enable System Clock
+
+  My_HAL_RCC_GPIOC_CLK_Enable();
+
+  GPIO_InitTypeDef initStr = { GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+
+  My_HAL_GPIO_Init(GPIOC, &initStr);
+  //init_User_Button(GPIOA);
+
+  My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_SET);
+  
+  My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_SET);
+  
+
   while (1)
   {
  
+    My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
+    HAL_Delay(600);
   }
   return -1;
 }
