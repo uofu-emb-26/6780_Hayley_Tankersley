@@ -3,6 +3,7 @@
 #include "hal_gpio2.h"
 
 
+
 void SystemClock_Config(void);
 
 void EXTI0_1_IRQHandler(void);
@@ -12,10 +13,9 @@ void EXTI0_1_IRQHandler(void);
   * @retval int
   */
 
-  
-
 int main(void)
 {
+
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
   /* Configure the system clock */
@@ -39,6 +39,7 @@ int main(void)
   init_User_Button(GPIOA);
 
   Connect_PA0_To_Interrupt();
+
 
   while (1)
   {
@@ -118,10 +119,17 @@ void Connect_PA0_To_Interrupt(void)
 
 void EXTI0_1_IRQHandler(void)
 {
-  //My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8);
+
+  My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8);
   My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_9);
 
-  EXTI->PR |= 0x1;
+
+  volatile int i;
+  for(i=0; i < 100; i++){}
+
+  My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8);
+  My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_9);
+
 }
 
 #ifdef USE_FULL_ASSERT

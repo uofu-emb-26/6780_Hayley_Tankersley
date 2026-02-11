@@ -9,8 +9,7 @@
 /**
   * @brief This function handles Non maskable interrupt.
   */
-
-volatile int count = 0;
+volatile int count;
 void NMI_Handler(void)
 {
    while (1)
@@ -54,9 +53,8 @@ void SysTick_Handler(void)
 
   if((count % 200) == 0)
   {
-    //My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_SET);
     My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_7);
-    //count = 0;
+    count = 0;
   }
   //HAL_Delay(200);
 }
