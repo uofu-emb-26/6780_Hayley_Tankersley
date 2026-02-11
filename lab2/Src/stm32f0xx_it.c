@@ -51,7 +51,7 @@ void SysTick_Handler(void)
   count += 1;
   HAL_IncTick();
 
-  if((count % 200) == 0)
+  if(count >= 200)
   {
     My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_7);
     count = 0;

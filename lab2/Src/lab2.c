@@ -30,7 +30,7 @@ int main(void)
   My_HAL_GPIO_Init(GPIOC, &initStr);
   //init_User_Button(GPIOA);
 
-  My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_SET);
+  My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_SET);
   
   My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,GPIO_PIN_SET);
   
@@ -39,6 +39,8 @@ int main(void)
   init_User_Button(GPIOA);
 
   Connect_PA0_To_Interrupt();
+
+  NVIC_SetPriority(SysTick_IRQn,2);
 
 
   while (1)
@@ -113,7 +115,7 @@ void Connect_PA0_To_Interrupt(void)
 
   // Set EXTI0 Priority in NVIC
   NVIC_EnableIRQ(EXTI0_1_IRQn);
-  NVIC_SetPriority(EXTI0_1_IRQn,1);
+  NVIC_SetPriority(EXTI0_1_IRQn,3);
 }
 
 
@@ -125,10 +127,12 @@ void EXTI0_1_IRQHandler(void)
 
 
   volatile int i;
-  for(i=0; i < 100; i++){}
+  for(i=0; i < 1500000; i++){}
 
   My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8);
   My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_9);
+
+  EXTI->PR |= 0x1;
 
 }
 
