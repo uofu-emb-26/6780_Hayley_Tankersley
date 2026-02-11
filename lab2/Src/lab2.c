@@ -118,7 +118,7 @@ void Connect_PA0_To_Interrupt(void)
 
 void EXTI0_1_IRQHandler(void)
 {
-  My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8);
+  //My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8);
   My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_9);
 
   EXTI->PR |= 0x1;
