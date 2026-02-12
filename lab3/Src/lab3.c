@@ -7,7 +7,6 @@ void SystemClock_Config(void);
 
 void TIM2_IRQHandler(void);
 
-
 /**
   * @brief  The application entry point.
   * @retval int
@@ -128,33 +127,35 @@ void Set_TIM2(void)
 void Set_TIM3(void)
 {
   
-  // TIM2->PSC |= 0b0001111100111111; // set PSC to 7999, this sets clock freq to 1 kHz, which has T = 1 ms
+  TIM3->PSC |= 0b0000000001001111; // set PSC to 79, this sets clock freq to 100 kHz, which has T = 10 us
   
-  // assert(TIM2->PSC == 0b0001111100111111);
-  // // ARR = 8MHz / ( (7999+1) * 4 ) = 250
+  assert(TIM3->PSC == 0b0000000001001111);
+  
+  // ARR = 8MHz / ( (79+1) * 800 ) = 125
 
-  // TIM2->ARR &= 0x0;
-  // TIM2->ARR |= 0b0000000011111010;
+  TIM3->ARR &= 0x0;
+  TIM3->ARR |= 0b0000000001111101;
 
-  // assert(TIM2->ARR == 0b0000000011111010);
-
-  // // Use DIER to enable interrupt
-
-  // TIM2->DIER |= TIM_DIER_UIE;
-
-  // //assert(TIM2->ARR == 0b01);
+  assert(TIM3->ARR == 0b0000000001111101);
 
 
-  // // Enable Tim2 in control reg
+  // Enable Tim3 in control reg
 
-  // TIM2->CR1 |= TIM_CR1_CEN;
-  // //assert(TIM2->CR1 == 0b01);
+  //TIM3->CR1 |= TIM_CR1_CEN;
 
+  // Set Up PWM mode
+  TIM3->CCMR1 &= ~TIM_CCMR1_CC1S; // Set CC1S to output mode [00]
+  TIM3->CCMR1 &= ~TIM_CCMR1_CC2S; // Set CC2S to output mode [00]
 
-  // //Enable NVIC IRQ Handler
+  TIM3->CCMR1 |= TIM_CCMR1_OC1M; // Set OC1M to PWM mode 2 [111]
 
-  // NVIC_EnableIRQ(TIM2_IRQn);
-  // NVIC_SetPriority(TIM2_IRQn,3);
+  TIM3->CCMR1 &= ~TIM_CCMR1_OC2M; // Clear OC2M before setting to PWM mode 3 [110]
+  TIM3->CCMR1 |= TIM_CCMR1_OC2M_1; // Set bit 1 of OC2M
+  TIM3->CCMR1 |= TIM_CCMR1_OC2M_2; // Set bit 2 of OC2M
+
+  assert((TIM3->CCMR1 &= TIM_CCMR1_OC2M) == 0b01100000000000000000);
+
+  // NEXT STEP: 3.2 step 3 part e "enable output compare preload for both channels"
 
 }
 
