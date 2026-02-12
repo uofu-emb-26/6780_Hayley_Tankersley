@@ -7,6 +7,9 @@ extern "C" {
 
 void Error_Handler(void);
 
+
+void Set_TIM_Freq(void);
+
 #ifdef __cplusplus
 }
 #endif

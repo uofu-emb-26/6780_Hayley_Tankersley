@@ -1,7 +1,12 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
+#include "hal_gpio3.h"
+#include "assert.h"
 
 void SystemClock_Config(void);
+
+void TIM2_IRQHandler(void);
+
 
 /**
   * @brief  The application entry point.
@@ -14,8 +19,24 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
+
+  My_HAL_RCC_GPIOC_CLK_Enable();
+
+  GPIO_InitTypeDef initStr = { GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+
+  My_HAL_GPIO_Init(GPIOC, &initStr);
+  //init_User_Button(GPIOA);
+
+  My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_SET);
+  
+
+  Set_TIM_Freq();
+
   while (1)
   {
+
+    My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
+    HAL_Delay(600);
  
   }
   return -1;
@@ -67,6 +88,51 @@ void Error_Handler(void)
   while (1)
   {
   }
+}
+
+
+void Set_TIM_Freq(void)
+{
+  
+  TIM2->PSC |= 0b0001111100111111; // set PSC to 7999, this sets clock freq to 1 kHz, which has T = 1 ms
+  
+  assert(TIM2->PSC == 0b0001111100111111);
+  // ARR = 8MHz / ( (7999+1) * 4 ) = 250
+
+  TIM2->ARR &= 0x0;
+  TIM2->ARR |= 0b0000000011111010;
+
+  assert(TIM2->ARR == 0b0000000011111010);
+
+  // Use DIER to enable interrupt
+
+  TIM2->DIER |= TIM_DIER_UIE;
+
+  //assert(TIM2->ARR == 0b01);
+
+
+  // Enable Tim2 in control reg
+
+  TIM2->CR1 |= TIM_CR1_CEN;
+  //assert(TIM2->CR1 == 0b01);
+
+
+  //Enable NVIC IRQ Handler
+
+  NVIC_EnableIRQ(TIM2_IRQn);
+  NVIC_SetPriority(TIM2_IRQn,3);
+
+}
+
+
+void  TIM2_IRQHandler(void)
+{
+
+  My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8);
+  My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_9);
+
+  TIM2->SR &= ~TIM_SR_UIF;
+
 }
 
 #ifdef USE_FULL_ASSERT
