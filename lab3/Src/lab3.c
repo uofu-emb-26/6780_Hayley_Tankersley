@@ -30,7 +30,8 @@ int main(void)
   My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_SET);
   
 
-  Set_TIM_Freq();
+  Set_TIM2();
+  Set_TIM3();
 
   while (1)
   {
@@ -91,7 +92,7 @@ void Error_Handler(void)
 }
 
 
-void Set_TIM_Freq(void)
+void Set_TIM2(void)
 {
   
   TIM2->PSC |= 0b0001111100111111; // set PSC to 7999, this sets clock freq to 1 kHz, which has T = 1 ms
@@ -121,6 +122,39 @@ void Set_TIM_Freq(void)
 
   NVIC_EnableIRQ(TIM2_IRQn);
   NVIC_SetPriority(TIM2_IRQn,3);
+
+}
+
+void Set_TIM3(void)
+{
+  
+  // TIM2->PSC |= 0b0001111100111111; // set PSC to 7999, this sets clock freq to 1 kHz, which has T = 1 ms
+  
+  // assert(TIM2->PSC == 0b0001111100111111);
+  // // ARR = 8MHz / ( (7999+1) * 4 ) = 250
+
+  // TIM2->ARR &= 0x0;
+  // TIM2->ARR |= 0b0000000011111010;
+
+  // assert(TIM2->ARR == 0b0000000011111010);
+
+  // // Use DIER to enable interrupt
+
+  // TIM2->DIER |= TIM_DIER_UIE;
+
+  // //assert(TIM2->ARR == 0b01);
+
+
+  // // Enable Tim2 in control reg
+
+  // TIM2->CR1 |= TIM_CR1_CEN;
+  // //assert(TIM2->CR1 == 0b01);
+
+
+  // //Enable NVIC IRQ Handler
+
+  // NVIC_EnableIRQ(TIM2_IRQn);
+  // NVIC_SetPriority(TIM2_IRQn,3);
 
 }
 

@@ -10,6 +10,7 @@ void My_HAL_RCC_GPIOC_CLK_Enable(void)
 
     // Enable Timer 2 RCC
     RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+    RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
 
 }
 
