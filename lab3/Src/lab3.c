@@ -149,13 +149,22 @@ void Set_TIM3(void)
 
   TIM3->CCMR1 |= TIM_CCMR1_OC1M; // Set OC1M to PWM mode 2 [111]
 
-  TIM3->CCMR1 &= ~TIM_CCMR1_OC2M; // Clear OC2M before setting to PWM mode 3 [110]
-  TIM3->CCMR1 |= TIM_CCMR1_OC2M_1; // Set bit 1 of OC2M
-  TIM3->CCMR1 |= TIM_CCMR1_OC2M_2; // Set bit 2 of OC2M
+  
 
-  assert((TIM3->CCMR1 &= TIM_CCMR1_OC2M) == 0b01100000000000000000);
+  TIM3->CCMR1 &= ~TIM_CCMR1_OC2M; // Clear OC2M before setting to PWM mode 3 [110]
+
+  assert((TIM3->CCMR1 &= TIM_CCMR1_OC2M) == 0b000000000000);
+  TIM3->CCMR1 |= TIM_CCMR1_OC2M_1; // Set bit 1 of OC2M
+  assert((TIM3->CCMR1 &= TIM_CCMR1_OC2M) == 0b010000000000000);
+  TIM3->CCMR1 |= TIM_CCMR1_OC2M_2; // Set bit 2 of OC2M
+  assert((TIM3->CCMR1 &= TIM_CCMR1_OC2M) == 0b110000000000000);
 
   // NEXT STEP: 3.2 step 3 part e "enable output compare preload for both channels"
+  // Set OC1PE, OC2PE = 1
+  TIM3->CCMR1 |= TIM_CCMR1_OC1PE;
+  assert((TIM3->CCMR1 &= TIM_CCMR1_OC1PE) == 0b1000);
+  TIM3->CCMR1 |= TIM_CCMR1_OC2PE;
+  assert((TIM3->CCMR1 &= TIM_CCMR1_OC2PE) == 0b100000000000);
 
 }
 
