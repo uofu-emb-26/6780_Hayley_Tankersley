@@ -18,8 +18,8 @@ void My_HAL_RCC_GPIOC_CLK_Enable(void)
 void My_HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init) /*, GPIO_InitTypeDef *GPIO_Init */
 {
 
-    GPIOx->MODER |= 0b00000000000001010101000000000000;
-    assert(GPIOx->MODER == 0b00000000000001010101000000000000);
+    GPIOx->MODER |= 0b00000000000001010000000000000000;
+    assert(GPIOx->MODER == 0b00000000000001010000000000000000);
 
     // OTYPER -> Push-pull output type [0]
 
@@ -36,6 +36,24 @@ void My_HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init) /*, GPI
     assert(GPIOx->PUPDR == 0b00000000000000000000000000000000);
 
     
+    
+}
+
+
+void My_HAL_GPIO_AltFunction(void) /*, GPIO_InitTypeDef *GPIO_Init */
+{   
+    //Configure PC6,PC7 to alternate functions
+
+    GPIOC->MODER &= ~GPIO_MODER_MODER6;
+    GPIOC->MODER &= ~GPIO_MODER_MODER7;
+
+    GPIOC->MODER |= GPIO_MODER_MODER6_1;
+    GPIOC->MODER |= GPIO_MODER_MODER7_1;
+
+
+    // Set AFRL to AF0 [0000]
+    GPIOC->AFR[0] &= ~(GPIO_AFRL_AFSEL6);
+    GPIOC->AFR[0] &= ~(GPIO_AFRL_AFSEL7);
     
 }
 
@@ -100,5 +118,4 @@ void My_HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
 
     GPIOx->ODR ^= GPIO_Pin;
-
 }

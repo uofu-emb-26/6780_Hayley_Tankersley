@@ -21,10 +21,12 @@ int main(void)
 
   My_HAL_RCC_GPIOC_CLK_Enable();
 
-  GPIO_InitTypeDef initStr = { GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+  GPIO_InitTypeDef initStr = { GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
 
   My_HAL_GPIO_Init(GPIOC, &initStr);
   //init_User_Button(GPIOA);
+
+  My_HAL_GPIO_AltFunction();
 
   My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_SET);
   
@@ -35,9 +37,6 @@ int main(void)
   while (1)
   {
 
-    My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
-    HAL_Delay(600);
- 
   }
   return -1;
 }
@@ -97,6 +96,7 @@ void Set_TIM2(void)
   TIM2->PSC |= 0b0001111100111111; // set PSC to 7999, this sets clock freq to 1 kHz, which has T = 1 ms
   
   assert(TIM2->PSC == 0b0001111100111111);
+
   // ARR = 8MHz / ( (7999+1) * 4 ) = 250
 
   TIM2->ARR &= 0x0;
@@ -138,18 +138,11 @@ void Set_TIM3(void)
 
   assert(TIM3->ARR == 0b0000000001111101);
 
-
-  // Enable Tim3 in control reg
-
-  //TIM3->CR1 |= TIM_CR1_CEN;
-
   // Set Up PWM mode
   TIM3->CCMR1 &= ~TIM_CCMR1_CC1S; // Set CC1S to output mode [00]
   TIM3->CCMR1 &= ~TIM_CCMR1_CC2S; // Set CC2S to output mode [00]
 
   TIM3->CCMR1 |= TIM_CCMR1_OC1M; // Set OC1M to PWM mode 2 [111]
-
-  
 
   TIM3->CCMR1 &= ~TIM_CCMR1_OC2M; // Clear OC2M before setting to PWM mode 3 [110]
 
