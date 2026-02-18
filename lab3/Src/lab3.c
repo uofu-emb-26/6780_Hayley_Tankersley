@@ -26,7 +26,10 @@ int main(void)
   My_HAL_GPIO_Init(GPIOC, &initStr);
   //init_User_Button(GPIOA);
 
-  My_HAL_GPIO_AltFunction();
+  GPIO_InitTypeDef AltinitStr = { GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_AF_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+  //My_HAL_GPIO_AltFunction();
+
+  HAL_GPIO_Init(GPIOC,&AltinitStr);
 
   My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_SET);
   
@@ -126,49 +129,50 @@ void Set_TIM2(void)
 
 void Set_TIM3(void)
 {
+
+  TIM3->PSC = 499; // set PSC to 79, this sets clock freq to 100 kHz, which has T = 10 us
   
-  TIM3->PSC |= 0b0000000001001111; // set PSC to 79, this sets clock freq to 100 kHz, which has T = 10 us
-  
-  assert(TIM3->PSC == 0b0000000001001111);
+  //assert(TIM3->PSC == 0b0000000001001111);
   
   // ARR = 8MHz / ( (79+1) * 800 ) = 125
 
-  TIM3->ARR &= 0x0;
-  TIM3->ARR |= 0b0000000001111101;
+  TIM3->ARR = 20;
 
-  assert(TIM3->ARR == 0b0000000001111101);
+  //assert(TIM3->ARR == 0b0000000001111101);
 
   // Set Up PWM mode
   TIM3->CCMR1 &= ~TIM_CCMR1_CC1S; // Set CC1S to output mode [00]
   TIM3->CCMR1 &= ~TIM_CCMR1_CC2S; // Set CC2S to output mode [00]
 
   TIM3->CCMR1 |= TIM_CCMR1_OC1M; // Set OC1M to PWM mode 2 [111]
+  //assert((TIM3->CCMR1 &= TIM_CCMR1_OC1M) == 0b000001110000);
 
-  TIM3->CCMR1 &= ~TIM_CCMR1_OC2M; // Clear OC2M before setting to PWM mode 3 [110]
-
-  assert((TIM3->CCMR1 &= TIM_CCMR1_OC2M) == 0b000000000000);
+  TIM3->CCMR1 &= ~TIM_CCMR1_OC2M; // Clear OC2M before setting to PWM mode 1 [110]
+  //assert((TIM3->CCMR1 &= TIM_CCMR1_OC2M) == 0b000000000000);
   TIM3->CCMR1 |= TIM_CCMR1_OC2M_1; // Set bit 1 of OC2M
-  assert((TIM3->CCMR1 &= TIM_CCMR1_OC2M) == 0b010000000000000);
+  //assert((TIM3->CCMR1 &= TIM_CCMR1_OC2M) == 0b010000000000000);
   TIM3->CCMR1 |= TIM_CCMR1_OC2M_2; // Set bit 2 of OC2M
-  assert((TIM3->CCMR1 &= TIM_CCMR1_OC2M) == 0b110000000000000);
+ //assert((TIM3->CCMR1 &= TIM_CCMR1_OC2M) == 0b110000000000000);
+
+ assert(TIM3->CCMR1 == 0x6070u);
 
   // Enable output compare preload for both channels
   // Set OC1PE, OC2PE = 1
   TIM3->CCMR1 |= TIM_CCMR1_OC1PE;
-  assert((TIM3->CCMR1 &= TIM_CCMR1_OC1PE) == 0b1000);
   TIM3->CCMR1 |= TIM_CCMR1_OC2PE;
-  assert((TIM3->CCMR1 &= TIM_CCMR1_OC2PE) == 0b100000000000);
 
   // Set output enable bits for 1,2 in CCER register [1]
   TIM3->CCER |= TIM_CCER_CC1E;
   TIM3->CCER |= TIM_CCER_CC2E;
-  // Set capture/compare registers CCRx to 20% of ARR = 20 = 0b0000000000010100
+  // Set capture/compare registers CCRx to 20% of ARR = 25 = 0b0000000000010100
 
   TIM3->CCR1 &= 0b0;
   TIM3->CCR2 &= 0b0;
 
-  TIM3->CCR1 |= 0b0000000000010100;
-  TIM3->CCR2 |= 0b0000000000010100;
+  TIM3->CCR1 |= 20;
+  TIM3->CCR2 |= 4;
+
+  TIM3->CR1 |= 0x00001u;
 }
 
 
