@@ -159,13 +159,23 @@ void Set_TIM3(void)
   TIM3->CCMR1 |= TIM_CCMR1_OC2M_2; // Set bit 2 of OC2M
   assert((TIM3->CCMR1 &= TIM_CCMR1_OC2M) == 0b110000000000000);
 
-  // NEXT STEP: 3.2 step 3 part e "enable output compare preload for both channels"
+  // Enable output compare preload for both channels
   // Set OC1PE, OC2PE = 1
   TIM3->CCMR1 |= TIM_CCMR1_OC1PE;
   assert((TIM3->CCMR1 &= TIM_CCMR1_OC1PE) == 0b1000);
   TIM3->CCMR1 |= TIM_CCMR1_OC2PE;
   assert((TIM3->CCMR1 &= TIM_CCMR1_OC2PE) == 0b100000000000);
 
+  // Set output enable bits for 1,2 in CCER register [1]
+  TIM3->CCER |= TIM_CCER_CC1E;
+  TIM3->CCER |= TIM_CCER_CC2E;
+  // Set capture/compare registers CCRx to 20% of ARR = 20 = 0b0000000000010100
+
+  TIM3->CCR1 &= 0b0;
+  TIM3->CCR2 &= 0b0;
+
+  TIM3->CCR1 |= 0b0000000000010100;
+  TIM3->CCR2 |= 0b0000000000010100;
 }
 
 
