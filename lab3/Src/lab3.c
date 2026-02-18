@@ -26,10 +26,10 @@ int main(void)
   My_HAL_GPIO_Init(GPIOC, &initStr);
   //init_User_Button(GPIOA);
 
-  GPIO_InitTypeDef AltinitStr = { GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_AF_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
-  //My_HAL_GPIO_AltFunction();
+  //GPIO_InitTypeDef AltinitStr = { GPIO_PIN_6 | GPIO_PIN_7, GPIO_MODE_AF_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+  My_HAL_GPIO_AltFunction();
 
-  HAL_GPIO_Init(GPIOC,&AltinitStr);
+  //HAL_GPIO_Init(GPIOC,&AltinitStr);
 
   My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,GPIO_PIN_SET);
   

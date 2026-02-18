@@ -1,5 +1,9 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
+#include "hal_gpio4.h"
+#include "assert.h"
+
+void initUSART(void);
 
 void SystemClock_Config(void);
 
@@ -14,8 +18,23 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
+  My_HAL_RCC_GPIOC_CLK_Enable();
+
+  GPIO_InitTypeDef initStr = { GPIO_PIN_6 , GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+
+  My_HAL_GPIO_Init(GPIOC, &initStr);
+
+  // Set up alt function on pins PC10 (USART3 TX) and PC11 (USART3 RX)
+  My_HAL_GPIO_AltFunction();
+
+  // Init USART 3
+  initUSART();
+
   while (1)
   {
+
+    My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
+    HAL_Delay(600);
  
   }
   return -1;
@@ -67,6 +86,35 @@ void Error_Handler(void)
   while (1)
   {
   }
+}
+
+void initUSART(void)
+{
+
+  // Set Baud Rate to 115200 bits/second
+
+  //Baud_TXRX = fCLK / USART_BRR = 115200
+
+  USART3->BRR = HAL_RCC_GetHCLKFreq() / 115200;
+
+  // Enable transmitter hardware
+
+  //USART_CR1 TE
+
+  USART3->CR1 |= USART_CR1_TE;
+
+  // Enable receiver hardware
+
+  //USART_CR1 RE
+
+  USART3->CR1 |= USART_CR1_RE;
+
+  // Enable peripheral control bit
+
+  //USART_CR1 UE
+
+  USART3->CR1 |= USART_CR1_UE;
+
 }
 
 #ifdef USE_FULL_ASSERT
