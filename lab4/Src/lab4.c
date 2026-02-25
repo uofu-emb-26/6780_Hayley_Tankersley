@@ -4,6 +4,7 @@
 #include "assert.h"
 
 void initUSART(void);
+void transmitCharUSART(char char2send);
 
 void SystemClock_Config(void);
 
@@ -33,9 +34,13 @@ int main(void)
   while (1)
   {
 
-    My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
-    HAL_Delay(600);
+    // My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
+    // HAL_Delay(600);
+    
  
+    transmitCharUSART('a');
+
+    // transmitStringUSART("Testing");
   }
   return -1;
 }
@@ -87,6 +92,46 @@ void Error_Handler(void)
   {
   }
 }
+void transmitCharUSART(char char2send)
+{
+  // Check USART status flag indicating that transmit register is empty
+
+    // USART_ISR, TXE
+    // while loop that exits when flag is set (TXE = 1)
+    
+    while((USART3->ISR &= USART_ISR_TXE) == 0b0) 
+    {
+
+    }
+    
+
+  // Write char into transmit register
+    // USART_TDR [7:0]
+
+    //USART3->TDR &= char2send;
+
+    USART3->TDR = char2send;
+
+    // My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
+    // HAL_Delay(500);
+  //
+}
+
+void transmitStringUART(char str[])
+{
+
+  int i = 0;
+  while()
+  {
+    if(str[i] == '\0')
+    {
+      return;
+    }
+    transmitCharUSART(str[i])
+    i = i + 1;
+  }
+
+}
 
 void initUSART(void)
 {
@@ -95,26 +140,31 @@ void initUSART(void)
 
   //Baud_TXRX = fCLK / USART_BRR = 115200
 
-  USART3->BRR = HAL_RCC_GetHCLKFreq() / 115200;
+  USART3->BRR = (HAL_RCC_GetHCLKFreq() / 115200);
 
   // Enable transmitter hardware
 
   //USART_CR1 TE
 
+  //USART3->CR1 |= 0b1000;
   USART3->CR1 |= USART_CR1_TE;
+
 
   // Enable receiver hardware
 
   //USART_CR1 RE
 
+  //USART3->CR1 |= 0b100;
   USART3->CR1 |= USART_CR1_RE;
+  
+
 
   // Enable peripheral control bit
 
   //USART_CR1 UE
 
-  USART3->CR1 |= USART_CR1_UE;
-
+  USART3->CR1 |= 0b1;
+  
 }
 
 #ifdef USE_FULL_ASSERT
