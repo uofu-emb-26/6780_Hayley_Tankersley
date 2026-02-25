@@ -5,6 +5,7 @@
 
 void initUSART(void);
 void transmitCharUSART(char char2send);
+void transmitStringUART(char str[]);
 
 void SystemClock_Config(void);
 
@@ -121,13 +122,13 @@ void transmitStringUART(char str[])
 {
 
   int i = 0;
-  while()
+  while(1)
   {
     if(str[i] == '\0')
     {
       return;
     }
-    transmitCharUSART(str[i])
+    transmitCharUSART(str[i]);
     i = i + 1;
   }
 
