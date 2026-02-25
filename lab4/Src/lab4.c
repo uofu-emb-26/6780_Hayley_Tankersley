@@ -1,4 +1,5 @@
 #include "main.h"
+#include "math.h"
 #include "stm32f0xx_hal.h"
 #include "hal_gpio4.h"
 #include "assert.h"
@@ -21,12 +22,6 @@ int main(void)
   SystemClock_Config();
 
   My_HAL_RCC_GPIOC_CLK_Enable();
-
-  GPIO_InitTypeDef initStr = { GPIO_PIN_6 , GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
-
-  My_HAL_GPIO_Init(GPIOC, &initStr);
-
-  // Set up alt function on pins PC10 (USART3 TX) and PC11 (USART3 RX)
   My_HAL_GPIO_AltFunction();
 
   // Init USART 3
@@ -34,14 +29,8 @@ int main(void)
 
   while (1)
   {
-
-    // My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
-    // HAL_Delay(600);
-    
- 
-    transmitCharUSART('a');
-
-    // transmitStringUSART("Testing");
+    transmitStringUART("test\n\0");
+    HAL_Delay(500);
   }
   return -1;
 }
@@ -100,7 +89,7 @@ void transmitCharUSART(char char2send)
     // USART_ISR, TXE
     // while loop that exits when flag is set (TXE = 1)
     
-    while((USART3->ISR &= USART_ISR_TXE) == 0b0) 
+    while((USART3->ISR & (1<<7)) == 00) 
     {
 
     }
@@ -111,7 +100,7 @@ void transmitCharUSART(char char2send)
 
     //USART3->TDR &= char2send;
 
-    USART3->TDR = char2send;
+    USART3->TDR = char2send;//char2send;
 
     // My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
     // HAL_Delay(500);
@@ -126,6 +115,7 @@ void transmitStringUART(char str[])
   {
     if(str[i] == '\0')
     {
+      USART3->ICR |= USART_ICR_TCCF;
       return;
     }
     transmitCharUSART(str[i]);
@@ -141,30 +131,14 @@ void initUSART(void)
 
   //Baud_TXRX = fCLK / USART_BRR = 115200
 
-  USART3->BRR = (HAL_RCC_GetHCLKFreq() / 115200);
+  RCC->APB1ENR |= (1 << 18);
+  USART3->CR1 = 0;
 
-  // Enable transmitter hardware
+  USART3->BRR = (uint32_t)(HAL_RCC_GetPCLK1Freq() / 115200);
 
-  //USART_CR1 TE
-
-  //USART3->CR1 |= 0b1000;
-  USART3->CR1 |= USART_CR1_TE;
-
-
-  // Enable receiver hardware
-
-  //USART_CR1 RE
-
-  //USART3->CR1 |= 0b100;
-  USART3->CR1 |= USART_CR1_RE;
+  USART3->CR1 |= USART_CR1_TE | USART_CR1_RE;
   
-
-
-  // Enable peripheral control bit
-
-  //USART_CR1 UE
-
-  USART3->CR1 |= 0b1;
+  USART3->CR1 |= USART_CR1_UE;
   
 }
 

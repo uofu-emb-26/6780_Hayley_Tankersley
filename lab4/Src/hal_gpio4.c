@@ -6,12 +6,12 @@
 int32_t get_2bit_pin_mask(uint32_t GPIO_Pin);
 void My_HAL_RCC_GPIOC_CLK_Enable(void)
 {
+    //RCC->APB1ENR |= RCC_APB1ENR_USART3;
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-    // RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
 
     // // Enable Timer 2,3 RCC
     // RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
-    // RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
+     RCC->APB1ENR |= (1 << 18);
 
     // RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
 
@@ -46,19 +46,19 @@ void My_HAL_GPIO_AltFunction(void) /*, GPIO_InitTypeDef *GPIO_Init */
 {   
     //Configure PC10,PC1 to alternate functions [10]
 
-    GPIOC->MODER &= ~GPIO_MODER_MODER10;
-    GPIOC->MODER &= ~GPIO_MODER_MODER11;
+    // GPIOC->MODER &= ~(1<<20);
+    // GPIOC->MODER &= ~(1<<22);
 
-    GPIOC->MODER |= GPIO_MODER_MODER10_1;
-    GPIOC->MODER |= GPIO_MODER_MODER11_1;
+    // GPIOC->MODER |= (1 << 21);
+    // GPIOC->MODER |= (1 << 23);
 
+   // assert((GPIOC->MODER &= GPIO_MODER_MODER10) == 0b1000000000000000000000);
+    GPIO_InitTypeDef altStr = { GPIO_PIN_10|GPIO_PIN_11 , GPIO_MODE_AF_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+    HAL_GPIO_Init(GPIOC,&altStr);
 
     // Set AFRH to AF1 [0001]
-    GPIOC->AFR[1] &= ~(GPIO_AFRH_AFSEL10);
-    GPIOC->AFR[1] &= ~(GPIO_AFRH_AFSEL11);
-    GPIOC->AFR[1] |= (1 << 8);
-    GPIOC->AFR[1] |= (1 << 12);
-    
+    GPIOC->AFR[1] = 0x00011100;
+
 }
 
 void init_User_Button(GPIO_TypeDef  *GPIOx)
