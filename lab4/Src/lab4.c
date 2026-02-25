@@ -8,7 +8,14 @@ void initUSART(void);
 void transmitCharUSART(char char2send);
 void transmitStringUART(char str[]);
 
+void USART3_4_IRQHandler(void);
+
 void SystemClock_Config(void);
+
+uint8_t data;
+uint8_t led;
+uint8_t data_flag = 0b0;
+uint8_t cmd_num = 0b0;
 
 /**
   * @brief  The application entry point.
@@ -37,45 +44,127 @@ int main(void)
     // HAL_Delay(500);
 
 
-    if ((USART3->ISR & USART_ISR_RXNE) == USART_ISR_RXNE)
+    if (data_flag == 0b1)
     {
-      uint8_t chartoreceive = (uint8_t)(USART3->RDR); /* Receive data, clear flag */
+      //uint8_t chartoreceive = (uint8_t)(USART3->RDR); /* Receive data, clear flag */
       
-
-      if(chartoreceive == 'r')
+      if(cmd_num == 1)
       {
-        // PC6 = red
-        My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
+        if(data == 'r' || data == 'o' || data == 'b' || data == 'g')
+        {
+          led = data;
+          transmitStringUART("Submit command\r\n\0");
+        }
+        else
+        {
+          transmitStringUART("Invalid Command, Submit LED\r\n\0");
+          cmd_num = 0;
+        }
       }
-      else if(chartoreceive == 'b')
+      else if(cmd_num == 2)
       {
-        // PC7 = blue
-        My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_7);
-      }
-      else if(chartoreceive == 'o')
-      {
-        // PC8 = orange
-        My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8);
-      }
-      else if(chartoreceive == 'g')
-      {
-        // PC9 = green
-        My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_9);
-      }
-      else
-      {
-        transmitStringUART("Invalid character - enter r, b, o, or g\n\0");
-      }
-      
+        cmd_num = 0;
 
-      
+        if(data == '0') // turn off LED
+        {
+          if(led == 'r')
+          {
+            My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
 
-      
+          }
+          else if(led == 'b')
+          {
+            My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,0);
+          }
+          else if(led == 'o')
+          {
+            My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,0);
+          }
+          else if(led == 'g')
+          {
+            My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
 
-      
+          }
 
+        }
+        else if(data == '1') // Turn on LED
+        {
+          if(led == 'r')
+          {
+            My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
+          }
+          else if(led == 'b')
+          {
+
+            My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,1);
+          }
+          else if(led == 'o')
+          {
+
+            My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,1);
+          }
+          else if(led == 'g')
+          {
+            My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
+          }
+          
+        }
+        else if (data == '2') // toggle LED
+        {
+          if(led == 'r')
+          {
+            My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
+
+          }
+          else if(led == 'b')
+          {
+            My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_7);
+          }
+          else if(led == 'o')
+          {
+            My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8);
+          }
+          else if(led == 'g')
+          {
+            My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_9);
+          }
+
+        }
+        else
+        {
+          transmitStringUART("Invalid Command, Submit LED\r\n\0");
+        }
+      }
+      data_flag = 0b0;
     }
-  }
+
+      // if(data == 'r')
+      // {
+      //   // PC6 = red
+      //   My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
+      // }
+      // else if(data == 'b')
+      // {
+      //   // PC7 = blue
+      //   My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_7);
+      // }
+      // else if(data == 'o')
+      // {
+      //   // PC8 = orange
+      //   My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8);
+      // }
+      // else if(data == 'g')
+      // {
+      //   // PC9 = green
+      //   My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_9);
+      // }
+      // else
+      // {
+      //   transmitStringUART("Invalid character - enter r, b, o, or g\r\n\0");
+      // }
+      // data_flag = 0b0;
+      // }
+    }
   return -1;
 }
 
@@ -180,10 +269,24 @@ void initUSART(void)
 
   USART3->BRR = (uint32_t)(HAL_RCC_GetPCLK1Freq() / 115200);
 
+  USART3->CR1 |= USART_CR1_RXNEIE;
+
   USART3->CR1 |= USART_CR1_TE | USART_CR1_RE;
   
   USART3->CR1 |= USART_CR1_UE;
   
+
+  NVIC_EnableIRQ(USART3_4_IRQn);
+  NVIC_SetPriority(USART3_4_IRQn,1);
+}
+
+void USART3_4_IRQHandler(void)
+{
+  
+  data = (uint8_t)(USART3->RDR);
+  data_flag = 0b1;
+  cmd_num = cmd_num + 1;
+
 }
 
 #ifdef USE_FULL_ASSERT
