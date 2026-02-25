@@ -11,7 +11,7 @@ void My_HAL_RCC_GPIOC_CLK_Enable(void)
 
     // // Enable Timer 2,3 RCC
     // RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
-     RCC->APB1ENR |= (1 << 18);
+     
 
     // RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
 
@@ -53,7 +53,7 @@ void My_HAL_GPIO_AltFunction(void) /*, GPIO_InitTypeDef *GPIO_Init */
     // GPIOC->MODER |= (1 << 23);
 
    // assert((GPIOC->MODER &= GPIO_MODER_MODER10) == 0b1000000000000000000000);
-    GPIO_InitTypeDef altStr = { GPIO_PIN_10|GPIO_PIN_11 , GPIO_MODE_AF_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+    GPIO_InitTypeDef altStr = { GPIO_PIN_10 | GPIO_PIN_11 , GPIO_MODE_AF_PP, GPIO_NOPULL};
     HAL_GPIO_Init(GPIOC,&altStr);
 
     // Set AFRH to AF1 [0001]
