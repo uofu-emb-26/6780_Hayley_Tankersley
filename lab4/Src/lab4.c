@@ -24,13 +24,57 @@ int main(void)
   My_HAL_RCC_GPIOC_CLK_Enable();
   My_HAL_GPIO_AltFunction();
 
+  GPIO_InitTypeDef initStr = { GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+
+  HAL_GPIO_Init(GPIOC, &initStr);
+
   // Init USART 3
   initUSART();
 
   while (1)
   {
-    transmitStringUART("test\n\0");
-    HAL_Delay(500);
+    // transmitStringUART("test\n\0");
+    // HAL_Delay(500);
+
+
+    if ((USART3->ISR & USART_ISR_RXNE) == USART_ISR_RXNE)
+    {
+      uint8_t chartoreceive = (uint8_t)(USART3->RDR); /* Receive data, clear flag */
+      
+
+      if(chartoreceive == 'r')
+      {
+        // PC6 = red
+        My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
+      }
+      else if(chartoreceive == 'b')
+      {
+        // PC7 = blue
+        My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_7);
+      }
+      else if(chartoreceive == 'o')
+      {
+        // PC8 = orange
+        My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_8);
+      }
+      else if(chartoreceive == 'g')
+      {
+        // PC9 = green
+        My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_9);
+      }
+      else
+      {
+        transmitStringUART("Invalid character - enter r, b, o, or g\n\0");
+      }
+      
+
+      
+
+      
+
+      
+
+    }
   }
   return -1;
 }
