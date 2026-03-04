@@ -1,19 +1,16 @@
 #include <stdint.h>
 #include "stm32f0xx_hal.h"
 #include "hal_gpio5.h"
-#include "i2c_functions.h"
 
 void InitI2C(void)
 {
-
-
   // Configure I2C GPIO pins
 
     GPIO_InitTypeDef initStr1 = { GPIO_PIN_11, GPIO_MODE_AF_OD};
     HAL_GPIO_Init(GPIOB, &initStr1);
 
     // set AFR register I2C2_SDA to AF1 [0001]
-    GPIOB->AFR[1] |= (1 << 20);
+    GPIOB->AFR[1] |= (1 << 12);
 
     GPIO_InitTypeDef initStr2 = { GPIO_PIN_13, GPIO_MODE_AF_OD};  
     HAL_GPIO_Init(GPIOB,&initStr2);
@@ -28,6 +25,44 @@ void InitI2C(void)
     GPIO_InitTypeDef initStr4 = { GPIO_PIN_0, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW};
     HAL_GPIO_Init(GPIOC, &initStr4);
     My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, 1);
+
+
+
+    // GPIO_InitTypeDef iniStr = {GPIO_PIN_11,
+    //                           GPIO_MODE_AF_OD,
+    //                           GPIO_NOPULL,
+    //                         GPIO_SPEED_FREQ_LOW,
+    //                     GPIO_AF1_I2C2};
+
+    // //Setup ALL LEDs and PC0
+    // GPIO_InitTypeDef iniStr2 = {GPIO_PIN_14,
+    //                         GPIO_MODE_OUTPUT_PP,
+    //                         GPIO_NOPULL,
+    //                         GPIO_SPEED_FREQ_LOW};
+    // GPIO_InitTypeDef iniStr4 = {
+    //                           GPIO_PIN_15,
+    //                           GPIO_MODE_OUTPUT_OD,  // Open-drain
+    //                           GPIO_NOPULL,
+    //                           GPIO_SPEED_FREQ_LOW};
+
+    // HAL_GPIO_Init(GPIOB, &iniStr4);
+    // GPIOB->ODR |= (1 << 15); // Set high so it's not pulling the line down
+
+    // HAL_GPIO_Init(GPIOB, &iniStr);
+    // iniStr.Pin = GPIO_PIN_13; // set to PB13
+    // iniStr.Alternate = GPIO_AF5_I2C2; //set AF to 5
+    // HAL_GPIO_Init(GPIOB, &iniStr);
+
+    // HAL_GPIO_Init(GPIOC, &iniStr2);
+
+
+    // GPIOB->ODR |= (1 << 14); // Set PB14
+    // GPIOC->ODR |= 0x1; //Set PC0
+
+    // GPIOB->AFR[1] |= (1 << 20);
+
+    // GPIOB->AFR[1] |= (1 << 20);
+    // GPIOB->AFR[1] |= (1 << 22);
 
   // Enable RCC clock for I2C system
 
@@ -75,13 +110,13 @@ void StartI2CTransaction(uint8_t address,uint8_t rw, uint8_t num_bytes)
 
     // Set the slave address in SADD[7:1]
 
-    I2C2->CR2 &= ~(0x3FF<<0);
-    I2C2->CR2 |= (address << 1);
+    I2C2->CR2 &= ~(0x7F<<1);
+    I2C2->CR2 |= ((address & 0x7F) << 1);
 
     // Set number of data bytes to be transmitted in NBYTES[7:0]
 
     I2C2->CR2 &= ~(0xFF << 16);
-    I2C2->CR2 |= (num_bytes << 16);
+    I2C2->CR2 |= ((num_bytes & 0xFF) << 16);
 
     // Configure RD_WRN to indicate read/write
 
