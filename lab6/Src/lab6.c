@@ -30,7 +30,7 @@ int main(void)
   while (1)
   {
 
-    My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_9);
+    My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
     HAL_Delay(500);
  
   }
@@ -84,7 +84,9 @@ void InitADC(void)
 
   ADC1->CR |= ADC_CR_ADEN;
 
+  // Start ADC Conversion (continuous)
 
+  ADC1->CR |= ADC_CR_ADSTART;
 
 }
 void SystemClock_Config(void)
