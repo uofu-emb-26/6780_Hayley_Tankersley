@@ -1,6 +1,7 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
 #include "hal_gpio5.h"
+#include "i2c_functions.h"
 void SystemClock_Config(void);
 
 /**
@@ -15,16 +16,21 @@ int main(void)
   SystemClock_Config();
 
 
+  // Set up pin 6 to observe system status
   My_HAL_RCC_GPIOC_CLK_Enable();
-  
   GPIO_InitTypeDef initStr = { GPIO_PIN_6, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
-
   HAL_GPIO_Init(GPIOC, &initStr);
+
+
   // Init I2C2
+    // Co
+
+    InitI2C();
 
   while (1)
   {
 
+    // Toggle pin 6 to observe system status
     My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
     HAL_Delay(600);
  
