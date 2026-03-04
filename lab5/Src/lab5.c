@@ -14,8 +14,19 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
+
+  My_HAL_RCC_GPIOC_CLK_Enable();
+  
+  GPIO_InitTypeDef initStr = { GPIO_PIN_6, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+
+  HAL_GPIO_Init(GPIOC, &initStr);
+  // Init I2C2
+
   while (1)
   {
+
+    My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_6);
+    HAL_Delay(600);
  
   }
   return -1;

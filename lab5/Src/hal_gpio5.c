@@ -6,58 +6,19 @@
 int32_t get_2bit_pin_mask(uint32_t GPIO_Pin);
 void My_HAL_RCC_GPIOC_CLK_Enable(void)
 {
-    //RCC->APB1ENR |= RCC_APB1ENR_USART3;
+    // Enable GPIOC, GPIOB clocks
+    //RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
-
-    // // Enable Timer 2,3 RCC
-    // RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
-     
-
-    // RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
-
 }
 
 
-void My_HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init) /*, GPIO_InitTypeDef *GPIO_Init */
-{
-
-    GPIOx->MODER |= 0b00000000000000000001000000000000;
-
-    // OTYPER -> Push-pull output type [0]
-
-    GPIOx->OTYPER &=0b0000000000000000; //0b0000000000000000;
-    assert(GPIOx->OTYPER ==0b0000000000000000);
-
-    // OSPEEDR -> low speed [x0]
-    GPIOx->OSPEEDR |= (GPIO_Init->Speed & GPIO_Init->Pin); 
-    assert(GPIOx->OSPEEDR == 0b00000000000000000000000000000000);
-
-    // PUPDR -> no pull-up/down [00]
-
-    GPIOx->PUPDR |= (GPIO_Init->Pull & GPIO_Init->Pin); 
-    assert(GPIOx->PUPDR == 0b00000000000000000000000000000000);
-
-    
-    
-}
-
-
-void My_HAL_GPIO_AltFunction(void) /*, GPIO_InitTypeDef *GPIO_Init */
+void My_HAL_GPIO_Init(void) /*, GPIO_InitTypeDef *GPIO_Init */
 {   
-    //Configure PC10,PC1 to alternate functions [10]
-
-    // GPIOC->MODER &= ~(1<<20);
-    // GPIOC->MODER &= ~(1<<22);
-
-    // GPIOC->MODER |= (1 << 21);
-    // GPIOC->MODER |= (1 << 23);
-
-   // assert((GPIOC->MODER &= GPIO_MODER_MODER10) == 0b1000000000000000000000);
-    GPIO_InitTypeDef altStr = { GPIO_PIN_10 | GPIO_PIN_11 , GPIO_MODE_AF_PP, GPIO_NOPULL};
-    HAL_GPIO_Init(GPIOC,&altStr);
-
-    // Set AFRH to AF1 [0001]
-    GPIOC->AFR[1] = 0x00011100;
+    // PB15: Input mode, OD
+    // PB14: Output mode, PP, init high
+    // PB13: Alt func mode, OD, I2C2_SCL = AF5
+    // PB11: Alt func mode, OD, I2C2_SDA = AF1
+    // PC0: Output mode, PP, init high
 
 }
 
@@ -87,12 +48,6 @@ void My_HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState 
         GPIOx->ODR &= ~GPIO_Pin;
     }
 }
-
-/*
-void My_HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
-{
-}
-*/
 
 
 GPIO_PinState My_HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
