@@ -1,7 +1,9 @@
 #include "main.h"
 #include "stm32f0xx_hal.h"
+#include "hal_gpio6.h"
 
 void SystemClock_Config(void);
+void InitADC(void);
 
 /**
   * @brief  The application entry point.
@@ -14,8 +16,22 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
+  My_HAL_RCC_GPIOC_CLK_Enable();
+  
+  GPIO_InitTypeDef initStr = { GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_9 | GPIO_PIN_8, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+  HAL_GPIO_Init(GPIOC, &initStr);
+
+  // Set PC0 for analog input
+  GPIO_InitTypeDef initStr2 = { GPIO_PIN_0,GPIO_MODE_ANALOG, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+  HAL_GPIO_Init(GPIOC, &initStr2);
+
+  InitADC();
+
   while (1)
   {
+
+    My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_9);
+    HAL_Delay(500);
  
   }
   return -1;
@@ -25,6 +41,52 @@ int main(void)
   * @brief System Clock Configuration
   * @retval None
   */
+
+
+void InitADC(void)
+{
+  // Enable ADC clock
+
+  RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
+
+  // Set to 8 bit resolution RES = [10]
+
+  ADC1->CFGR1 &= ~ADC_CFGR1_RES;
+  ADC1->CFGR1 |= (1 << 4);
+
+  // Set to continuous conversion mode
+
+  ADC1->CFGR1 |= ADC_CFGR1_CONT;
+
+  // Disable Hardware Triggers
+
+  ADC1->CFGR1 &= ~ADC_CFGR1_EXTEN;
+
+  // Select / Enable input pins channel (PC0 => ADC_IN10)
+
+  ADC1->CHSELR |= (1<<10);
+
+  // Calibrate
+
+    // 1. Ensure that ADEN = 0 and DMAEN = 0
+  ADC1->CR &= ~ADC_CR_ADEN;
+  ADC1->CFGR1 &= ~ADC_CFGR1_DMAEN;
+    // 2. Set ADCAL = 1
+
+  ADC1->CR |=  ADC_CR_ADCAL;
+    // 3. Wait until ADCAL = 0
+  while((ADC1->CR & ADC_CR_ADCAL) != 0)
+  {
+    // wait
+  }
+
+  // After Calibration, set peripheral enable
+
+  ADC1->CR |= ADC_CR_ADEN;
+
+
+
+}
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
