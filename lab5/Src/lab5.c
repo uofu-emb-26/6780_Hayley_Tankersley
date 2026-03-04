@@ -58,14 +58,112 @@ int main(void)
   int16_t x_axis = 0;
   int16_t y_axis = 0;
 
+  uint8_t x_low = 0;
+  uint8_t x_high = 0;
+
+  uint8_t y_low = 0;
+  uint8_t y_high = 0;
+
+  uint8_t x_low_reg = 0x28;
+  uint8_t x_high_reg = 0x29;
+
+  uint8_t y_low_reg = 0x2A;
+  uint8_t y_high_reg = 0x2B;
+
   while (1)
   {
 
+    HAL_Delay(100);
     // Toggle pin 7 to observe system status
     My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_7);
     HAL_Delay(600);
 
-    
+    // Read x low
+
+    // StartI2CTransaction(gyro_addr,0,0x1);
+    // WriteI2C(x_low_reg);
+    // WaitTC();
+
+    // StartI2CTransaction(gyro_addr,1,0x1);
+    // ReadI2C(&x_low);
+    // WaitTC();
+
+    // // Read x high
+
+    // StartI2CTransaction(gyro_addr,0,0x1);
+    // WriteI2C(x_high_reg);
+    // WaitTC();
+
+    // StartI2CTransaction(gyro_addr,1,0x1);
+    // ReadI2C(&x_high);
+    // WaitTC();
+
+    // // Read y low
+
+    // StartI2CTransaction(gyro_addr,0,0x1);
+    // WriteI2C(y_low_reg);
+    // WaitTC();
+
+    // StartI2CTransaction(gyro_addr,1,0x1);
+    // ReadI2C(&y_low);
+    // WaitTC();
+
+    // // Read y high
+
+    // StartI2CTransaction(gyro_addr,0,0x1);
+    // WriteI2C(y_high_reg);
+    // WaitTC();
+
+    // StartI2CTransaction(gyro_addr,1,0x1);
+    // ReadI2C(&y_high);
+    // WaitTC();
+
+    // // Convert to signed total values
+
+    // x_axis = (int16_t)((uint16_t)x_low | ((uint16_t)x_high << 8));
+    // y_axis = (int16_t)((uint16_t)y_low | ((uint16_t)y_high << 8));
+
+    // if(abs(y_axis) > 100)
+    // {
+    //   if(y_axis > 100)
+    //   {
+    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,1);
+    //   }
+    //   else
+    //   {
+    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,0);
+    //   }
+
+    //   if(y_axis < -100)
+    //   {
+    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
+    //   }
+    //   else
+    //   {
+    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
+    //   }
+    // }
+
+    // if(abs(x_axis) > 100)
+    // {
+    //   if(x_axis > 100)
+    //   {
+    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
+    //   }
+    //   else
+    //   {
+    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
+    //   }
+
+    //   if(x_axis < -100)
+    //   {
+    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,1);
+    //   }
+    //   else
+    //   {
+    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,0);
+    //   }
+    // }
    
 
 
@@ -306,7 +404,7 @@ void WaitTC(void)
     {
       // Wait for TC bit to be set
     }
-    My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,1);
+    //My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,1);
 
     if((I2C2->ISR & I2C_ISR_TC) == (1 << 6))
     {
