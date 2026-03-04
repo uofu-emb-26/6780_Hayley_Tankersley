@@ -7,7 +7,7 @@ int32_t get_2bit_pin_mask(uint32_t GPIO_Pin);
 void My_HAL_RCC_GPIOC_CLK_Enable(void)
 {
     // Enable GPIOC, GPIOB clocks
-    //RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+    RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
     RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
 }
 
