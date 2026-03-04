@@ -69,17 +69,34 @@ void StartI2CTransaction(uint8_t address,uint8_t rw, uint8_t num_bytes)
     // This function starts an I2C Transaction
 
     // address = slave address
-    // rw = read/write command
+    // rw = read/write command, 0b0 = write, 0b1 = read
     // num_bytes = number of data bytes to be transmitted
 
 
     // Set the slave address in SADD[7:1]
 
+    I2C2->CR2 &= ~(0x3FF<<0);
+    I2C2->CR2 |= (address << 1);
+
     // Set number of data bytes to be transmitted in NBYTES[7:0]
 
+    I2C2->CR2 &= ~(0xFF << 16);
+    I2C2->CR2 |= (num_bytes << 16);
+
     // Configure RD_WRN to indicate read/write
+
+    if(rw == 0b0)
+    {
+        I2C2->CR2 &= ~(1 << 10);
+    }
+    else if (rw == 0b1)
+    {
+        I2C2->CR2 |= (1 << 10);
+    }
     
     // Set START bit [locks transaction parameters temporarily]
+
+    I2C2->CR2 |= (1 << 13);
 }
 
 void TransmitI2C(void)
