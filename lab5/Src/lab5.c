@@ -26,48 +26,144 @@ int main(void)
   SystemClock_Config();
 
 
-  // Set up pin 6 to observe system status
+  // Set up pins to observe system status
   My_HAL_RCC_GPIOC_CLK_Enable();
   
-  GPIO_InitTypeDef initStr = { GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_9, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+  GPIO_InitTypeDef initStr = { GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_9 | GPIO_PIN_8, GPIO_MODE_OUTPUT_PP, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
   HAL_GPIO_Init(GPIOC, &initStr);
 
 
   // Init I2C2
-    // Co
 
     InitI2C();
 
-    //My_HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, 1);
-
-    StartI2CTransaction(0x69,0,0x1);
+    uint8_t received_byte;
 
   while (1)
   {
 
-    // Toggle pin 6 to observe system status
+    // Toggle pin 7 to observe system status
     My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_7);
     HAL_Delay(600);
 
-    //I2C2->ICR |= (1 << 5) | (1 << 4);
+    // Initiate write command
     StartI2CTransaction(0x69,0,0x1);
-    //while((I2C2->TXIS) && )
+
 
     while(((I2C2->ISR & I2C_ISR_TXIS) == 0b0) && ((I2C2->ISR & I2C_ISR_NACKF) == 0b0))
     {
-      
-    }
-    if((I2C2->ISR & I2C_ISR_TXIS) == (1 << 1))
-    {
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
-      
-    }
-    else if((I2C2->ISR & I2C_ISR_NACKF) == (1 << 4))
-    {
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
+      // Wait for either TXIS or NACKF bit to be set
     }
 
-    HAL_Delay(5000);
+    if((I2C2->ISR & I2C_ISR_NACKF) == (1 << 4))
+    {
+      // Error - restart
+
+      // Flash red LED to signal error
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
+      HAL_Delay(1000);
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
+
+      // Go back to start of loop to restart transmission
+      //continue;
+
+    }
+    else if((I2C2->ISR & I2C_ISR_TXIS) == (1 << 1))
+    {
+      // Transaction received, continue!
+
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
+      HAL_Delay(1000);
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
+    }
+
+    // Write "WHO_AM_I" register address [0xF] to TXDR
+    I2C2->TXDR = 0xF; 
+
+    while((I2C2->ISR & I2C_ISR_TC) == 0b0)
+    {
+      // Wait for TC bit to be set
+    }
+
+    if((I2C2->ISR & I2C_ISR_TC) == (1 << 6))
+    {
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,1);
+      HAL_Delay(1000);
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,0);
+    }
+
+    // Initiate read command
+    StartI2CTransaction(0x69,1,0x1);
+
+    while(((I2C2->ISR & I2C_ISR_RXNE) == 0b0) && ((I2C2->ISR & I2C_ISR_NACKF) == 0b0))
+    {
+      // Wait for either RXNE or NACKF bit to be set
+    }
+
+    if((I2C2->ISR & I2C_ISR_NACKF) == (1 << 4))
+    {
+      // Error - restart
+
+      // Flash red LED to signal error
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
+      HAL_Delay(1000);
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
+
+      // Go back to start of loop to restart transmission
+      //continue;
+    }
+    else if((I2C2->ISR & I2C_ISR_RXNE) == (1 << 2))
+    {
+      // Transaction received, continue!
+
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
+      HAL_Delay(1000);
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
+      received_byte = I2C2->RXDR;
+    }
+
+
+    
+
+    while((I2C2->ISR & I2C_ISR_TC) == 0b0)
+    {
+      
+      
+      // Wait for TC bit to be set
+    }
+    if((I2C2->ISR & I2C_ISR_TC) == (1 << 6))
+    {
+      // Transaction coplete
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,1);
+      HAL_Delay(1000);
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,0);
+    }
+    else
+    {
+      // error
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
+      HAL_Delay(1000);
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
+    }
+
+    // Read Data from RXDR
+    // uint8_t received_bit;
+    // received_bit = I2C2->RXDR; & I2C_RXDR_RXDATA;
+
+    if(received_byte == 0xD3)
+    {
+      // WHO_AM_I Register accurately read!!!
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
+      HAL_Delay(1000);
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
+    }
+    else
+    {
+      // error
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
+      HAL_Delay(1000);
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
+    }
 
  
   }
@@ -201,7 +297,7 @@ void StartI2CTransaction(uint8_t address,uint8_t rw, uint8_t num_bytes)
     }
     else if (rw == 0b1)
     {
-        I2C2->CR2 |= ~I2C_CR2_RD_WRN;//(1 << 10);
+        I2C2->CR2 |= I2C_CR2_RD_WRN;//(1 << 10);
     }
     
     // Set START bit [locks transaction parameters temporarily]
