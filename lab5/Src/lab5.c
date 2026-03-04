@@ -24,6 +24,8 @@ void WaitTC(void);
 
 void ReadWhoAmI(void);
 
+void InitGyroscope(uint8_t gyro_addr);
+
 
 /**
   * @brief  The application entry point.
@@ -46,7 +48,15 @@ int main(void)
 
   // Init I2C2
 
-    InitI2C();
+  InitI2C();
+
+  // Init Gyroscope
+    
+  uint8_t gyro_addr = 0x69;
+  InitGyroscope(gyro_addr);
+
+  int16_t x_axis = 0;
+  int16_t y_axis = 0;
 
   while (1)
   {
@@ -56,8 +66,11 @@ int main(void)
     HAL_Delay(600);
 
     
-    ReadWhoAmI();
- 
+   
+
+
+
+
   }
   return -1;
 }
@@ -97,6 +110,45 @@ void SystemClock_Config(void)
   }
 }
 
+void InitGyroscope(uint8_t gyro_addr)
+{
+
+  uint8_t ctrl_reg1_addr = 0x20;
+
+  // Enable X-axis, Y-axis, and Power=normal/sleep mode
+  StartI2CTransaction(gyro_addr,0, 1);
+  WriteI2C(ctrl_reg1_addr);
+  WaitTC();
+  //My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,1);
+  StartI2CTransaction(gyro_addr,0, 1);
+  WriteI2C(0b00001011);
+  WaitTC(); 
+
+  // // Check settings
+
+  StartI2CTransaction(gyro_addr,0,0x1);
+  WriteI2C(ctrl_reg1_addr);
+  WaitTC();
+
+  uint8_t ctrl_reg1_output;
+  StartI2CTransaction(gyro_addr,1,0x1);
+  ReadI2C(&ctrl_reg1_output);
+  WaitTC();
+
+  if(ctrl_reg1_output == 0b00001011)
+  {
+    My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
+    HAL_Delay(1000);
+    My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
+  }
+  else
+  {
+    ErrorI2C();
+  }
+
+
+  I2C2->CR2 |= (1 << 14);
+}
 
 void ReadWhoAmI(void)
 {
@@ -206,7 +258,7 @@ void InitI2C(void)
 
   // Enable I2C Peripheral using CR1 register PE bit
 
-    I2C2->CR1 |= 0b1;
+  I2C2->CR1 |= 0b1;
 }
 
 void ReadI2C(uint8_t *byte2read)
@@ -246,16 +298,6 @@ void WriteI2C(uint8_t byte2send)
 
     // Write "WHO_AM_I" register address [0xF] to TXDR
     I2C2->TXDR = byte2send; 
-
-    while((I2C2->ISR & I2C_ISR_TC) == 0b0)
-    {
-      // Wait for TC bit to be set
-    }
-
-    if((I2C2->ISR & I2C_ISR_TC) != (1 << 6))
-    {
-      ErrorI2C();
-    }
 }
 
 void WaitTC(void)
@@ -264,6 +306,7 @@ void WaitTC(void)
     {
       // Wait for TC bit to be set
     }
+    My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,1);
 
     if((I2C2->ISR & I2C_ISR_TC) == (1 << 6))
     {
