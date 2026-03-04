@@ -2,6 +2,7 @@
 #include "stm32f0xx_hal.h"
 #include "hal_gpio5.h"
 #include "assert.h"
+#include "stdlib.h"
 
 void SystemClock_Config(void);
 void InitI2C(void);
@@ -70,100 +71,107 @@ int main(void)
   uint8_t y_low_reg = 0x2A;
   uint8_t y_high_reg = 0x2B;
 
+  int16_t x_count = 0;
+  int16_t y_count = 0;
+
   while (1)
   {
 
+
     HAL_Delay(100);
     // Toggle pin 7 to observe system status
-    My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_7);
-    HAL_Delay(600);
+    // My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_7);
+    // HAL_Delay(600);
 
     // Read x low
 
-    // StartI2CTransaction(gyro_addr,0,0x1);
-    // WriteI2C(x_low_reg);
-    // WaitTC();
+    StartI2CTransaction(gyro_addr,0,0x1);
+    WriteI2C(x_low_reg);
+    WaitTC();
 
-    // StartI2CTransaction(gyro_addr,1,0x1);
-    // ReadI2C(&x_low);
-    // WaitTC();
+    StartI2CTransaction(gyro_addr,1,0x1);
+    ReadI2C(&x_low);
+    WaitTC();
 
     // // Read x high
 
-    // StartI2CTransaction(gyro_addr,0,0x1);
-    // WriteI2C(x_high_reg);
-    // WaitTC();
+    StartI2CTransaction(gyro_addr,0,0x1);
+    WriteI2C(x_high_reg);
+    WaitTC();
 
-    // StartI2CTransaction(gyro_addr,1,0x1);
-    // ReadI2C(&x_high);
-    // WaitTC();
+    StartI2CTransaction(gyro_addr,1,0x1);
+    ReadI2C(&x_high);
+    WaitTC();
 
     // // Read y low
 
-    // StartI2CTransaction(gyro_addr,0,0x1);
-    // WriteI2C(y_low_reg);
-    // WaitTC();
+    StartI2CTransaction(gyro_addr,0,0x1);
+    WriteI2C(y_low_reg);
+    WaitTC();
 
-    // StartI2CTransaction(gyro_addr,1,0x1);
-    // ReadI2C(&y_low);
-    // WaitTC();
+    StartI2CTransaction(gyro_addr,1,0x1);
+    ReadI2C(&y_low);
+    WaitTC();
 
     // // Read y high
 
-    // StartI2CTransaction(gyro_addr,0,0x1);
-    // WriteI2C(y_high_reg);
-    // WaitTC();
+    StartI2CTransaction(gyro_addr,0,0x1);
+    WriteI2C(y_high_reg);
+    WaitTC();
 
-    // StartI2CTransaction(gyro_addr,1,0x1);
-    // ReadI2C(&y_high);
-    // WaitTC();
+    StartI2CTransaction(gyro_addr,1,0x1);
+    ReadI2C(&y_high);
+    WaitTC();
 
     // // Convert to signed total values
 
-    // x_axis = (int16_t)((uint16_t)x_low | ((uint16_t)x_high << 8));
-    // y_axis = (int16_t)((uint16_t)y_low | ((uint16_t)y_high << 8));
+    x_axis = (int16_t)(x_high << 8 | x_low);
+    y_axis = (int16_t)(y_high << 8 | y_low);
 
-    // if(abs(y_axis) > 100)
-    // {
-    //   if(y_axis > 100)
-    //   {
-    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,1);
-    //   }
-    //   else
-    //   {
-    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,0);
-    //   }
+    x_count += x_axis;
+    y_count += y_axis;
 
-    //   if(y_axis < -100)
-    //   {
-    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
-    //   }
-    //   else
-    //   {
-    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
-    //   }
-    // }
+    //if(abs(y_axis) > 0)
+    //{
+      if(y_count >200)
+      {
+        My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,1);
+      }
+      else
+      {
+        My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,0);
+      }
 
-    // if(abs(x_axis) > 100)
-    // {
-    //   if(x_axis > 100)
-    //   {
-    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
-    //   }
-    //   else
-    //   {
-    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
-    //   }
+      if(y_count < 200)
+      {
+        My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
+      }
+      else
+      {
+        My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
+      }
+    //}
 
-    //   if(x_axis < -100)
-    //   {
-    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,1);
-    //   }
-    //   else
-    //   {
-    //     My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,0);
-    //   }
-    // }
+    //if(abs(x_axis) > 100)
+    //{
+      if(x_count > 200)
+      {
+        My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
+      }
+      else
+      {
+        My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
+      }
+
+      if(x_count < 200)
+      {
+        My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,1);
+      }
+      else
+      {
+        My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,0);
+      }
+    //}
    
 
 
@@ -214,15 +222,12 @@ void InitGyroscope(uint8_t gyro_addr)
   uint8_t ctrl_reg1_addr = 0x20;
 
   // Enable X-axis, Y-axis, and Power=normal/sleep mode
-  StartI2CTransaction(gyro_addr,0, 1);
+  StartI2CTransaction(gyro_addr,0, 2);
   WriteI2C(ctrl_reg1_addr);
-  WaitTC();
-  //My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,1);
-  StartI2CTransaction(gyro_addr,0, 1);
   WriteI2C(0b00001011);
   WaitTC(); 
 
-  // // Check settings
+  // Check settings
 
   StartI2CTransaction(gyro_addr,0,0x1);
   WriteI2C(ctrl_reg1_addr);
@@ -282,9 +287,9 @@ void ReadWhoAmI(void)
 }
 void ErrorI2C(void)
 {
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
-      HAL_Delay(1000);
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
+      //My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
+      //HAL_Delay(1000);
+      //My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
 }
 void CheckNACKFI2C(void)
 {
@@ -383,6 +388,8 @@ void ReadI2C(uint8_t *byte2read)
 
 void WriteI2C(uint8_t byte2send)
 {
+
+  //I2C2->CR2 &~((0xFF << 16) | (0x3FF <<0))
   while(((I2C2->ISR & I2C_ISR_TXIS) == 0b0) && ((I2C2->ISR & I2C_ISR_NACKF) == 0b0))
     {
       // Wait for either TXIS or NACKF bit to be set
