@@ -20,7 +20,9 @@ void WriteI2C(uint8_t byte2send);
 
 void ReadI2C(uint8_t *byte2read);
 
-void CheckTC(void);
+void WaitTC(void);
+
+void ReadWhoAmI(void);
 
 
 /**
@@ -53,46 +55,8 @@ int main(void)
     My_HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_7);
     HAL_Delay(600);
 
-    // Initiate write command
-    StartI2CTransaction(0x69,0,0x1);
-
-    // Write Who Am I Adress
-    WriteI2C(0xF);
-
-    CheckTC();
     
-
-    // Initiate read command
-    StartI2CTransaction(0x69,1,0x1);
-
-    uint8_t read_byte;
-
-    // Read Data from RXDR
-
-    ReadI2C(&read_byte);  
-
-    CheckTC();
-
-    
-    // uint8_t received_bit;
-    // received_bit = I2C2->RXDR; & I2C_RXDR_RXDATA;
-
-    if(read_byte == 0xD3)
-    {
-      // WHO_AM_I Register accurately read!!!
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
-      HAL_Delay(1000);
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
-
-      // Set stop bit: 
-
-      I2C2->CR2 |= (1 << 14);
-    }
-    else
-    {
-      ErrorI2C();
-    }
-
+    ReadWhoAmI();
  
   }
   return -1;
@@ -131,6 +95,40 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+
+void ReadWhoAmI(void)
+{
+  // Initiate write command
+    StartI2CTransaction(0x69,0,0x1);
+
+    // Write Who Am I Adress
+    WriteI2C(0xF);
+    WaitTC(); 
+
+    // Initiate read command
+    StartI2CTransaction(0x69,1,0x1);
+
+    // Read Data from RXDR
+    uint8_t read_byte;
+    ReadI2C(&read_byte);  
+    WaitTC();
+
+    if(read_byte == 0xD3)
+    {
+      // WHO_AM_I Register accurately read!!!
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
+      HAL_Delay(1000);
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
+
+      // Set stop bit: 
+      I2C2->CR2 |= (1 << 14);
+    }
+    else
+    {
+      ErrorI2C();
+    }
 }
 void ErrorI2C(void)
 {
@@ -260,7 +258,7 @@ void WriteI2C(uint8_t byte2send)
     }
 }
 
-void CheckTC(void)
+void WaitTC(void)
 {
     while((I2C2->ISR & I2C_ISR_TC) == 0b0)
     {
