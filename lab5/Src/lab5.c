@@ -12,6 +12,15 @@ void TransmitI2C(void);
 
 void ReceiveI2C(void);
 
+void CheckNACKFI2C(void);
+
+void ErrorI2C(void);
+
+void WriteI2C(uint8_t byte2send);
+
+void ReadI2C(uint8_t *byte2read);
+
+void CheckTC(void);
 
 
 /**
@@ -37,8 +46,6 @@ int main(void)
 
     InitI2C();
 
-    uint8_t received_byte;
-
   while (1)
   {
 
@@ -49,120 +56,41 @@ int main(void)
     // Initiate write command
     StartI2CTransaction(0x69,0,0x1);
 
+    // Write Who Am I Adress
+    WriteI2C(0xF);
 
-    while(((I2C2->ISR & I2C_ISR_TXIS) == 0b0) && ((I2C2->ISR & I2C_ISR_NACKF) == 0b0))
-    {
-      // Wait for either TXIS or NACKF bit to be set
-    }
-
-    if((I2C2->ISR & I2C_ISR_NACKF) == (1 << 4))
-    {
-      // Error - restart
-
-      // Flash red LED to signal error
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
-      HAL_Delay(1000);
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
-
-      // Go back to start of loop to restart transmission
-      //continue;
-
-    }
-    else if((I2C2->ISR & I2C_ISR_TXIS) == (1 << 1))
-    {
-      // Transaction received, continue!
-
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
-      HAL_Delay(1000);
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
-    }
-
-    // Write "WHO_AM_I" register address [0xF] to TXDR
-    I2C2->TXDR = 0xF; 
-
-    while((I2C2->ISR & I2C_ISR_TC) == 0b0)
-    {
-      // Wait for TC bit to be set
-    }
-
-    if((I2C2->ISR & I2C_ISR_TC) == (1 << 6))
-    {
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,1);
-      HAL_Delay(1000);
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,0);
-    }
+    CheckTC();
+    
 
     // Initiate read command
     StartI2CTransaction(0x69,1,0x1);
 
-    while(((I2C2->ISR & I2C_ISR_RXNE) == 0b0) && ((I2C2->ISR & I2C_ISR_NACKF) == 0b0))
-    {
-      // Wait for either RXNE or NACKF bit to be set
-    }
-
-    if((I2C2->ISR & I2C_ISR_NACKF) == (1 << 4))
-    {
-      // Error - restart
-
-      // Flash red LED to signal error
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
-      HAL_Delay(1000);
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
-
-      // Go back to start of loop to restart transmission
-      //continue;
-    }
-    else if((I2C2->ISR & I2C_ISR_RXNE) == (1 << 2))
-    {
-      // Transaction received, continue!
-
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
-      HAL_Delay(1000);
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
-      received_byte = I2C2->RXDR;
-    }
-
-
-    
-
-    while((I2C2->ISR & I2C_ISR_TC) == 0b0)
-    {
-      
-      
-      // Wait for TC bit to be set
-    }
-    if((I2C2->ISR & I2C_ISR_TC) == (1 << 6))
-    {
-      // Transaction coplete
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,1);
-      HAL_Delay(1000);
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,0);
-    }
-    else
-    {
-      // error
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
-      HAL_Delay(1000);
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
-    }
+    uint8_t read_byte;
 
     // Read Data from RXDR
+
+    ReadI2C(&read_byte);  
+
+    CheckTC();
+
+    
     // uint8_t received_bit;
     // received_bit = I2C2->RXDR; & I2C_RXDR_RXDATA;
 
-    if(received_byte == 0xD3)
+    if(read_byte == 0xD3)
     {
       // WHO_AM_I Register accurately read!!!
       My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
       HAL_Delay(1000);
       My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
+
+      // Set stop bit: 
+
+      I2C2->CR2 |= (1 << 14);
     }
     else
     {
-      // error
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
-      HAL_Delay(1000);
-      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
+      ErrorI2C();
     }
 
  
@@ -203,6 +131,19 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+void ErrorI2C(void)
+{
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
+      HAL_Delay(1000);
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
+}
+void CheckNACKFI2C(void)
+{
+    if((I2C2->ISR & I2C_ISR_NACKF) == (1 << 4))
+    {
+      ErrorI2C();
+    }
 }
 
 void InitI2C(void)
@@ -268,6 +209,71 @@ void InitI2C(void)
   // Enable I2C Peripheral using CR1 register PE bit
 
     I2C2->CR1 |= 0b1;
+}
+
+void ReadI2C(uint8_t *byte2read)
+{
+
+  while(((I2C2->ISR & I2C_ISR_RXNE) == 0b0) && ((I2C2->ISR & I2C_ISR_NACKF) == 0b0))
+    {
+      // Wait for either RXNE or NACKF bit to be set
+    }
+
+    CheckNACKFI2C();
+
+    if((I2C2->ISR & I2C_ISR_RXNE) == (1 << 2))
+    {
+      *byte2read = I2C2->RXDR;
+    }
+    else
+    {
+      ErrorI2C();
+    }
+
+
+}
+
+void WriteI2C(uint8_t byte2send)
+{
+  while(((I2C2->ISR & I2C_ISR_TXIS) == 0b0) && ((I2C2->ISR & I2C_ISR_NACKF) == 0b0))
+    {
+      // Wait for either TXIS or NACKF bit to be set
+    }
+
+    CheckNACKFI2C();
+
+    if((I2C2->ISR & I2C_ISR_TXIS) == (1 << 1))
+    {
+    }
+
+    // Write "WHO_AM_I" register address [0xF] to TXDR
+    I2C2->TXDR = byte2send; 
+
+    while((I2C2->ISR & I2C_ISR_TC) == 0b0)
+    {
+      // Wait for TC bit to be set
+    }
+
+    if((I2C2->ISR & I2C_ISR_TC) != (1 << 6))
+    {
+      ErrorI2C();
+    }
+}
+
+void CheckTC(void)
+{
+    while((I2C2->ISR & I2C_ISR_TC) == 0b0)
+    {
+      // Wait for TC bit to be set
+    }
+
+    if((I2C2->ISR & I2C_ISR_TC) == (1 << 6))
+    {
+    }
+    else
+    {
+      ErrorI2C();
+    }
 }
 
 void StartI2CTransaction(uint8_t address,uint8_t rw, uint8_t num_bytes)
