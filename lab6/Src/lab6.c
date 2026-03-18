@@ -27,11 +27,56 @@ int main(void)
 
   InitADC();
 
+  uint16_t adc_output = 0;
+
   while (1)
   {
 
-    My_HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
+    //My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
+
+    
     HAL_Delay(500);
+
+
+    adc_output = ADC1->DR;
+
+    if(adc_output > 0b00110100) // above 52
+    {
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,1);
+    }
+    else
+    {
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_9,0);
+    }
+
+    if(adc_output > 0b01101000) // above 104
+    {
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,1);
+    }
+    else
+    {
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_7,0);
+    }
+
+    if(adc_output > 0b10011100) // above 156
+    {
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,1);
+    }
+    else
+    {
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,0);
+    }
+
+    if(adc_output > 0b11010000) // above 208
+    {
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,1);
+    }
+    else
+    {
+      My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
+    }
+
+
  
   }
   return -1;
