@@ -4,7 +4,7 @@
 
 void SystemClock_Config(void);
 void InitADC(void);
-
+void ADCCheck(void);
 /**
   * @brief  The application entry point.
   * @retval int
@@ -27,18 +27,27 @@ int main(void)
 
   InitADC();
 
-  uint16_t adc_output = 0;
-
   while (1)
   {
-
-    //My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
-
-    
+ 
     HAL_Delay(500);
 
+    ADCCheck();
 
-    adc_output = ADC1->DR;
+  }
+  return -1;
+}
+
+/**
+  * @brief System Clock Configuration
+  * @retval None
+  */
+
+
+void ADCCheck(void)
+{
+
+    int adc_output = ADC1->DR;
 
     if(adc_output > 0b00110100) // above 52
     {
@@ -76,16 +85,7 @@ int main(void)
       My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
     }
 
-
- 
-  }
-  return -1;
 }
-
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
 
 
 void InitADC(void)
