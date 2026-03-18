@@ -29,17 +29,36 @@ int main(void)
   GPIO_InitTypeDef initStr2 = { GPIO_PIN_0,GPIO_MODE_ANALOG, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
   HAL_GPIO_Init(GPIOC, &initStr2);
 
-  
+  // DAC table
 
-  InitADC();
+  const uint8_t triangle_table[32] {0, 15, 31, 47, 63, 79, 95, 111, 127, 142, 158, 174, 190, 206, 222, 238, 254, 238, 222, 206, 190, 174, 158, 142, 127, 111, 95, 79, 63, 47, 31, 15};
+
+  // Init DAC 
 
   InitDAC();
+
+  int waveform_index = 1;
   while (1)
   {
  
-    HAL_Delay(500);
+    // HAL_Delay(500);
 
-    ADCCheck();
+    // ADCCheck();
+    HAL_Delay(1);
+
+    DAC1->DHR8R1 = triangle_table[waveform_index];
+
+    if(waveform_index = 32)
+    {
+      waveform_index = 1;
+    }
+    else
+    {
+      waveform_index = waveform_index + 1;
+    }
+
+
+
 
   }
   return -1;
