@@ -3,8 +3,12 @@
 #include "hal_gpio6.h"
 
 void SystemClock_Config(void);
+
 void InitADC(void);
 void ADCCheck(void);
+
+void InitDAC(void);
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -25,8 +29,11 @@ int main(void)
   GPIO_InitTypeDef initStr2 = { GPIO_PIN_0,GPIO_MODE_ANALOG, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
   HAL_GPIO_Init(GPIOC, &initStr2);
 
+  
+
   InitADC();
 
+  InitDAC();
   while (1)
   {
  
@@ -84,6 +91,26 @@ void ADCCheck(void)
     {
       My_HAL_GPIO_WritePin(GPIOC,GPIO_PIN_6,0);
     }
+
+}
+
+void initDAC(void)
+{
+  // Connect Pin PA4 for analog use DAC_OUT1
+  RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+  RCC->APB2ENR |= RCC_APB2ENR_ADCEN;
+
+  // Set PA4 for analog input
+  GPIO_InitTypeDef initStr3 = { GPIO_PIN_4,GPIO_MODE_ANALOG, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL};
+  HAL_GPIO_Init(GPIOA, &initStr3);
+
+  // Set DAC Channel 1 to Software Trigger Mode
+
+  DAC1->CR |= DAC_CR_TSEL1;
+
+  // Enable DAC Channel 1
+
+  DAC1->CR |= DAC_CR_EN1;
 
 }
 
